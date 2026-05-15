@@ -105,7 +105,7 @@ class Task():
         else:
             days_to_complete = self.duration/dt.timedelta(minutes=30)
             self._urgency = self.time_till_due.days/days_to_complete            # This is wrong, but what I want to do is to check how many days are left till 
-                                                                # the thing is due (not counting today). Then I want to check how many days it would
+            print(days_to_complete, self.time_till_due.days)                                                    # the thing is due (not counting today). Then I want to check how many days it would
                                                                 # take to complete the task if you spent 30 minutes on it everyday. You take both of
                                                                 # those and divide the amount of days to complete the task at 30 minutes a day by
                                                                 # the amount of days left till the thing is due. Given this is the case it seems
