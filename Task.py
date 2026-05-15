@@ -74,56 +74,49 @@ class Task():
         today = dt.datetime.now()
 
         if self.due_date >= today:
-            self._time_till_due = (self.due_date - today)
+            _time_till_due = (self.due_date - today)
 
         else:
-            self._time_till_due = dt.timedelta(days=1)
+            _time_till_due = dt.timedelta(days=0)
 
-        return self._time_till_due
+        return _time_till_due
     
 
     @property
     def work_required(self):
         """The amount of "work" required to complete a task. "Work" is calculated by multiplying the duration by the difficulty modifier"""
         if self.flexibility == False:
-            self._work_required = None # This could also be 0 but that could result in accidental divide by zero errors.
+            _work_required = None # This could also be 0 but that could result in accidental divide by zero errors.
         else:
-            self._work_required = self.duration*self.difficulty # This formula probably needs adjustment.
+            _work_required = self.duration*self.difficulty # This formula probably needs adjustment.
 
-        return self._work_required
+        return _work_required
     
 
     @property
     def urgency(self):
-        """How soon something is due and how important it is."""
-        # This was originally going to be the ultimate number that would determine order of tasks, however I think splitting that off
-        # into it's own thing and using this as just a measure of timeliness is best. It will be much easier to adjust timeliness separately
-        # from work/time required to do something when structured this way.
-
-        # I am unsure whether difficulty should be accounted for in urgency as it's already in work_required. It probably shouldn't be here
-        # since difficulty is part of how long you think something will take rather than how long you have left/how much you want to prioritize
-        # something.
-        
+        """How soon something is due and how important it is. Maxes out at whatever priority is. Max if there are more days required to complete the task than days till it is due"""
 
         if self.flexibility == False:
-            self._urgency = None # Putting None here for now, but I should probably do something else in the future
+            _urgency = None # Putting None here for now, but I should probably do something else in the future
 
-
-        elif self.time_till_due.days == 0:
-            self._urgency = self.duration.total_seconds()/self.time_till_due.total_seconds() + 1
+        elif self.time_till_due.days == dt.timedelta(days=0).days:
+            _urgency = self.priority
             
-
         else:
             days_to_complete = self.duration/self.work_length
-            self._urgency = (days_to_complete/self.time_till_due.days)*self.priority 
+            _urgency = min(days_to_complete/self.time_till_due.days,1)*self.priority 
 
-        return self._urgency
-
+        return _urgency
     
 
+    @property
+    def ultimate_prio(self):
+        """Make doc string"""
+        if self.work_required == None or self.urgency == None:
+            _ultimate_prio = None
+        else:
+            work_hours = self.work_required/dt.timedelta(hours=1)
+            _ultimate_prio = self.urgency*work_hours
+        return _ultimate_prio
 
-test = Task(name="testname", description="test", due_date=dt.datetime(year= 2026, month= 5, day= 16), timeslot=None,\
-             duration=dt.timedelta(hours= 5), priority="5", flexibility=True, difficulty="10")
-
-test.date_created = dt.datetime(year=2026, month= 4,day= 5, hour=6, minute=24,second=58) #setting this as a static time for testing purposes.
-print(test.difficulty, test.priority, test.time_till_due, test.work_required, test.urgency)
