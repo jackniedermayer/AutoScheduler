@@ -4,7 +4,7 @@ import datetime as dt
 class Task():
 
     def __init__(self, name:str, description:str, due_date:dt.datetime, timeslot, duration:dt.timedelta,\
-                  priority:str, flexibility:bool, difficulty:str):
+                  priority:str, flexibility:bool, difficulty:str, work_length:dt.timedelta= dt.timedelta(minutes=30)):
         """
         description is self explanatory.
 
@@ -22,6 +22,8 @@ class Task():
 
         difficulty is a number 1-10 of how difficult a task is expected to be by the user. More difficult tasks
             have higher urgency.
+        
+        work_length is how long the user wants to work on the task daily, default is 30 minutes
         """
         self.name = name
         self.description = description
@@ -31,6 +33,9 @@ class Task():
         self.priority = priority
         self.flexibility = flexibility
         self.difficulty = difficulty
+        self.work_length = work_length
+        
+        self.date_created = dt.datetime.now() #This gets reset everytime that the class is initiallized (which happens everytime I run this file)
 
 
     @property
@@ -68,11 +73,11 @@ class Task():
         """The time left to complete a task in seconds. Otherwise the amount of seconds between now and the due date"""
         today = dt.datetime.now()
 
-        #if self.due_date >= today:
-        self._time_till_due = (self.due_date - today)
+        if self.due_date >= today:
+            self._time_till_due = (self.due_date - today)
 
-        #else:
-        #    self._time_till_due = -( (self.due_date - today).total_seconds() )
+        else:
+            self._time_till_due = dt.timedelta(days=1)
 
         return self._time_till_due
     
@@ -99,37 +104,26 @@ class Task():
         # since difficulty is part of how long you think something will take rather than how long you have left/how much you want to prioritize
         # something.
         
+
         if self.flexibility == False:
             self._urgency = None # Putting None here for now, but I should probably do something else in the future
-        
+
+
+        elif self.time_till_due.days == 0:
+            self._urgency = self.duration.total_seconds()/self.time_till_due.total_seconds() + 1
+            
+
         else:
-            days_to_complete = self.duration/dt.timedelta(minutes=30)
-            self._urgency = self.time_till_due.days/days_to_complete            # This is wrong, but what I want to do is to check how many days are left till 
-            print(days_to_complete, self.time_till_due.days)                                                    # the thing is due (not counting today). Then I want to check how many days it would
-                                                                # take to complete the task if you spent 30 minutes on it everyday. You take both of
-                                                                # those and divide the amount of days to complete the task at 30 minutes a day by
-                                                                # the amount of days left till the thing is due. Given this is the case it seems
-                                                                # like my current implementation of self.time_till_due is not good. I probably need
-                                                                # to return the dt.datetime object instead of the raw total seconds like I am doing
-                                                                # currently.
+            days_to_complete = self.duration/self.work_length
+            self._urgency = (days_to_complete/self.time_till_due.days)*self.priority 
 
         return self._urgency
 
     
 
-    """def calculate_urgency(self):
-        urgency = float()
-        if self.flexibility == False:
-            urgency = 0
-            return urgency
-        today = dt.datetime.now()
-        time_till = self.due_date - today
 
-        urgency = (self.duration.total_seconds()/np.log(time_till.total_seconds()))#*self.priority*self.difficulty
-        return urgency"""
-
-
-test = Task(name="testname", description="test", due_date=dt.datetime(year= 2026, month= 6, day= 28), timeslot=None,\
+test = Task(name="testname", description="test", due_date=dt.datetime(year= 2026, month= 5, day= 16), timeslot=None,\
              duration=dt.timedelta(hours= 5), priority="5", flexibility=True, difficulty="10")
 
+test.date_created = dt.datetime(year=2026, month= 4,day= 5, hour=6, minute=24,second=58) #setting this as a static time for testing purposes.
 print(test.difficulty, test.priority, test.time_till_due, test.work_required, test.urgency)
