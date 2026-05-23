@@ -18,7 +18,7 @@ class Schedule:
             if task.ultimate_prio is None:
                 static_tasks = {task:task.ultimate_prio}
             else:
-                priorities.update({task:task.ultimate_prio})
+                priorities[task] = task.ultimate_prio
 
         sorted_prios = dict(sorted(priorities.items(),key= lambda x: x[1], reverse=True))
         return {**static_tasks, **sorted_prios}
