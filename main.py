@@ -31,3 +31,5 @@ fake_things_db = [{"thing_name": "Foo"}, {"thing_name": "Bar"}, {"thing_name": "
 @app.get("/things/")
 async def read_things(skip: int = 0, limit: int = 10):
     return fake_things_db[skip : skip + limit]
+
+#Testing neovim for git commit
