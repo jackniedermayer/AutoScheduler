@@ -1,13 +1,13 @@
 import datetime as dt
 
+
 class TimeSlot:
-    def __init__(self, start:dt.datetime, end:dt.datetime):
+    def __init__(self, start: dt.datetime, end: dt.datetime):
         self.start = start
         self.end = end
 
-
-    def compare(self, *others:TimeSlot) -> dict[TimeSlot,dt.timedelta]:
-        how_overlapping:dict[TimeSlot,dt.timedelta] = dict()
+    def compare(self, *others: TimeSlot) -> dict[TimeSlot, dt.timedelta]:
+        how_overlapping: dict[TimeSlot, dt.timedelta] = dict()
         overlap = dt.timedelta()
 
         """
@@ -20,8 +20,11 @@ class TimeSlot:
         for other in others:
             if self.start.date() != other.start.date():
                 overlap = dt.timedelta(0)
-            elif other.start <= self.end and other.start >= self.start or\
-                  (other.end <= self.end and other.end >= self.start):
+            elif (
+                other.start <= self.end
+                and other.start >= self.start
+                or (other.end <= self.end and other.end >= self.start)
+            ):
                 overlap = min(self.end, other.end) - max(self.start, other.start)
             else:
                 overlap = dt.timedelta(0)

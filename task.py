@@ -1,11 +1,21 @@
-#import numpy as np
+# import numpy as np
 import datetime as dt
+from traceback import format_exception_only
 
 
-class Task():
-
-    def __init__(self, name:str, description:str, due_date:dt.datetime, work_window, duration:dt.timedelta,\
-                  priority:str, flexibility:bool, difficulty:str, work_length:dt.timedelta= dt.timedelta(minutes=30)):
+class Task:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        due_date: dt.datetime,
+        work_window,
+        duration: dt.timedelta,
+        priority: str,
+        flexibility: bool,
+        difficulty: str,
+        work_length: dt.timedelta = dt.timedelta(minutes=30),
+    ):
         """
         **description** is self explanatory.
 
@@ -15,7 +25,7 @@ class Task():
 
         **duration** is how long you expect it to take to complete the task
 
-        **priority** is going to be a number 0-5 (could be more or less) with 5 being the highest and 0 the lowest. 
+        **priority** is going to be a number 0-5 (could be more or less) with 5 being the highest and 0 the lowest.
             Each number is going to correspond to a phrase which the user will select.
 
         **flexibility** is a bool where a 0 is not flexible and 1 is flexible. Flexible tasks can be moved about and
@@ -23,7 +33,7 @@ class Task():
 
         **difficulty** is a number 1-10 of how difficult a task is expected to be by the user. More difficult tasks
             have higher urgency.
-        
+
         **work_length** is how long the user wants to work on the task daily, default is 30 minutes
         """
         self.name = name
@@ -35,39 +45,59 @@ class Task():
         self.flexibility = flexibility
         self.difficulty = difficulty
         self.work_length = work_length
-        
-        self.date_created = dt.datetime.now() #This gets reset everytime that the class is initiallized (which happens everytime I run this file)
 
+        self.date_created = dt.datetime.now()
 
     @property
     def priority(self):
         """Make doc string"""
         return self._priority
-    
+
     @priority.setter
-    def priority(self, value:str):
-        priority_dic = {"0":0.2, "1":0.8, "2":1.0, "3":1.3, "4":1.6, "5":2.0} # Probably should make this customizable in the future
+    def priority(self, value: str):
+        priority_dic = {
+            "0": 0.2,
+            "1": 0.8,
+            "2": 1.0,
+            "3": 1.3,
+            "4": 1.6,
+            "5": 2.0,
+        }  # Probably should make this customizable in the future
         keys = list(priority_dic.keys())
         if value not in keys:
-            raise ValueError(f"priority outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string")
+            raise ValueError(
+                f"priority outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string"
+            )
         else:
             self._priority = priority_dic[value]
-
 
     @property
     def difficulty(self):
         """Make doc string"""
         return self._difficulty
-    
+
     @difficulty.setter
-    def difficulty(self, value:str):
-        difficulty_dic = {"0":1.0, "1":1.1, "2":1.2, "3":1.3, "4":1.4, "5":1.5, "6":1.6, "7":1.7, "8":1.8, "9":1.9, "10":2.0}
+    def difficulty(self, value: str):
+        difficulty_dic = {
+            "0": 1.0,
+            "1": 1.1,
+            "2": 1.2,
+            "3": 1.3,
+            "4": 1.4,
+            "5": 1.5,
+            "6": 1.6,
+            "7": 1.7,
+            "8": 1.8,
+            "9": 1.9,
+            "10": 2.0,
+        }
         keys = list(difficulty_dic.keys())
         if value not in keys:
-            raise ValueError(f"difficulty outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string.")
+            raise ValueError(
+                f"difficulty outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string."
+            )
         else:
             self._difficulty = difficulty_dic[value]
-
 
     @property
     def time_till_due(self):
@@ -75,47 +105,45 @@ class Task():
         today = dt.datetime.now()
 
         if self.due_date >= today:
-            _time_till_due = (self.due_date - today)
+            _time_till_due = self.due_date - today
 
         else:
             _time_till_due = dt.timedelta(days=0)
 
         return _time_till_due
-    
 
     @property
     def urgency(self):
         """How soon something is due and how important it is. Maxes out at whatever priority is. Max if there are more days required to complete the task than days till it is due"""
 
-        if self.flexibility == False:
-            _urgency = None # Putting None here for now, but I should probably do something else in the future
+        if not self.flexibility:
+            _urgency = None  # Putting None here for now, but I should probably do something else in the future
 
         elif self.time_till_due.days == dt.timedelta(days=0).days:
             _urgency = self.priority
-            
+
         else:
-            days_to_complete = self.duration/self.work_length
-            _urgency = min(days_to_complete/self.time_till_due.days,1)*self.priority 
+            days_to_complete = self.duration / self.work_length
+            _urgency = (
+                min(days_to_complete / self.time_till_due.days, 1) * self.priority
+            )
 
         return _urgency
-    
 
     @property
     def ultimate_prio(self):
         """Make doc string"""
-        if self.urgency == None:
+        if self.urgency is None:
             _ultimate_prio = None
         else:
-            _ultimate_prio = self.urgency*self.difficulty
+            _ultimate_prio = self.urgency * self.difficulty
         return _ultimate_prio
-    
 
     @property
     def time_scheduled(self):
         return self._time_scheduled
-    
-    @time_scheduled.setter
-    def time_scheduled(self, value:dt.datetime):
-        self._time_scheduled = value
 
+    @time_scheduled.setter
+    def time_scheduled(self, value: dt.datetime):
+        self._time_scheduled = value
 
