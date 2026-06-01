@@ -1,6 +1,13 @@
 # import numpy as np
 import datetime as dt
-from traceback import format_exception_only
+from enum import Enum
+
+
+class DiffMap(Enum):
+    pass
+
+
+minutes_30 = dt.timedelta(minutes=30)
 
 
 class Task:
@@ -14,7 +21,7 @@ class Task:
         priority: str,
         flexibility: bool,
         difficulty: str,
-        work_length: dt.timedelta = dt.timedelta(minutes=30),
+        work_length: dt.timedelta = minutes_30,
     ):
         """
         **description** is self explanatory.
@@ -36,17 +43,22 @@ class Task:
 
         **work_length** is how long the user wants to work on the task daily, default is 30 minutes
         """
-        self.name = name
-        self.description = description
-        self.due_date = due_date
-        self.work_window = work_window
-        self.duration = duration
-        self.priority = priority
-        self.flexibility = flexibility
-        self.difficulty = difficulty
-        self.work_length = work_length
 
-        self.date_created = dt.datetime.now()
+        self.name: str = name
+        self.description: str = description
+        self.due_date: dt.datetime = due_date
+        self.work_window = work_window
+        self.duration: dt.timedelta = duration
+        self.priority = priority
+        self.flexibility: bool = flexibility
+        self.difficulty = difficulty
+        self.work_length: dt.timedelta = work_length
+
+        self.date_created: dt.datetime = dt.datetime.now()
+
+        self._priority: float
+        self._difficulty: float
+        self._time_scheduled: dt.datetime
 
     @property
     def priority(self):
@@ -146,4 +158,3 @@ class Task:
     @time_scheduled.setter
     def time_scheduled(self, value: dt.datetime):
         self._time_scheduled = value
-
