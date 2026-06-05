@@ -1,12 +1,10 @@
 # import numpy as np
 import datetime as dt
-from enum import Enum
+from timeslot import TimeSlot
 
-
-class DiffMap(Enum):
-    pass
-
-
+time_0900 = dt.time(hour=9)
+time_1700 = dt.time(hour=17)
+example_time_window = TimeSlot(time_0900, time_1700)
 minutes_30 = dt.timedelta(minutes=30)
 
 
@@ -16,15 +14,15 @@ class Task:
         name: str,
         description: str,
         due_date: dt.datetime,
-        work_window,
         duration: dt.timedelta,
-        priority: str,
+        priority: int,
         flexibility: bool,
-        difficulty: str,
+        difficulty: int,
         work_length: dt.timedelta = minutes_30,
+        work_window: TimeSlot = example_time_window,
     ):
         """
-        **description** is self explanatory.
+        **description** is self-explanatory.
 
         **due_date** is when something is due.
 
@@ -47,7 +45,7 @@ class Task:
         self.name: str = name
         self.description: str = description
         self.due_date: dt.datetime = due_date
-        self.work_window = work_window
+        self.work_window: TimeSlot = work_window
         self.duration: dt.timedelta = duration
         self.priority = priority
         self.flexibility: bool = flexibility
@@ -66,22 +64,13 @@ class Task:
         return self._priority
 
     @priority.setter
-    def priority(self, value: str):
-        priority_dic = {
-            "0": 0.2,
-            "1": 0.8,
-            "2": 1.0,
-            "3": 1.3,
-            "4": 1.6,
-            "5": 2.0,
-        }  # Probably should make this customizable in the future
-        keys = list(priority_dic.keys())
-        if value not in keys:
+    def priority(self, value: int):
+        if value not in range(0, 6, 1):
             raise ValueError(
-                f"priority outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string"
+                "priority outside of expected range, must be an integer from 0 to 5 in the form of a string"
             )
         else:
-            self._priority = priority_dic[value]
+            self._priority = 1.0 + value / 10.0
 
     @property
     def difficulty(self):
@@ -89,31 +78,17 @@ class Task:
         return self._difficulty
 
     @difficulty.setter
-    def difficulty(self, value: str):
-        difficulty_dic = {
-            "0": 1.0,
-            "1": 1.1,
-            "2": 1.2,
-            "3": 1.3,
-            "4": 1.4,
-            "5": 1.5,
-            "6": 1.6,
-            "7": 1.7,
-            "8": 1.8,
-            "9": 1.9,
-            "10": 2.0,
-        }
-        keys = list(difficulty_dic.keys())
-        if value not in keys:
+    def difficulty(self, value: int):
+        if value not in range(0, 11, 1):
             raise ValueError(
-                f"difficulty outside of expected range, must be an integer from {keys[0]} to {keys[-1]} in the form of a string."
+                "difficulty outside of expected range, must be an integer from 0 to 10."
             )
         else:
-            self._difficulty = difficulty_dic[value]
+            self._difficulty = 1.0 + value / 10.0
 
     @property
     def time_till_due(self):
-        """The time left to complete a task in seconds. Otherwise the amount of seconds between now and the due date"""
+        """The time left to complete a task in seconds. Otherwise, the amount of seconds between now and the due date"""
         today = dt.datetime.now()
 
         if self.due_date >= today:
