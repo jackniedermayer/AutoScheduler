@@ -3,34 +3,34 @@ from task import Task
 from timeslot import TimeSlot
 
 
-optimal_example_timeslot = TimeSlot(start=dt.time(hour=9, minute=30), end=dt.time(hour=11, minute=30))
+optimal_example_timeslot = TimeSlot(
+    start=dt.time(hour=9, minute=30), end=dt.time(hour=11, minute=30)
+)
 
 
-def priority_order(tasks:list[Task]):
+def priority_order(tasks: list[Task]):
     priorities: dict[Task, float] = {}
     static_tasks: dict[Task, None] = {}
 
     for task in tasks:
         if task.ultimate_prio is None:
-            #static_tasks = {task: task.ultimate_prio}
+            # static_tasks = {task: task.ultimate_prio}
             continue
         else:
             priorities[task] = task.ultimate_prio
 
-    sorted_prios = dict(
-        sorted(priorities.items(), key=lambda x: x[1], reverse=True)
-    )
+    sorted_prios = dict(sorted(priorities.items(), key=lambda x: x[1], reverse=True))
     return {**static_tasks, **sorted_prios}
 
 
-def scheduler(tasks:list[Task], optimal_timeslot:TimeSlot = optimal_example_timeslot):
+def scheduler(tasks: list[Task], optimal_timeslot: TimeSlot = optimal_example_timeslot):
     prio_order = priority_order(tasks)
     for task in prio_order:
         print(task, optimal_timeslot)
         if not task.flexibility:
-            pass #Here it should schedule each task at the time that they are "due".
+            pass  # Here it should schedule each task at the time that they are "due".
         else:
-            pass #This is where the splitting up of tasks into smaller 30 minute segments and scheduling them across multiple days should happen.
+            pass  # This is where the splitting up of tasks into smaller 30 minute segments and scheduling them across multiple days should happen.
 
 
 task1 = Task(
@@ -97,4 +97,4 @@ task7 = Task(
     difficulty=6,
 )
 scheduler([task1, task2, task3, task4, task5, task6, task7])
-#print(priority_order([task1, task2, task3, task4, task5, task6, task7]))
+# print(priority_order([task1, task2, task3, task4, task5, task6, task7]))

@@ -3,6 +3,7 @@ import datetime as dt
 
 dummy_date = dt.date(year=2026, month=6, day=1)
 
+
 class TimeSlot:
     def __init__(self, start: dt.time, end: dt.time):
         if start < end:
