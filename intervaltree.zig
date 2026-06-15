@@ -13,6 +13,17 @@ pub fn main() void{
 }
 
 
+const NNode = union(enum) {
+    NULL: null,
+    NODE: Node,
+};
+const IntervalError = error{
+    // end is less than the start
+    end_lt_start,
+    overlaps
+
+};
+
 const Interval = struct {
     start: u32,
     end: u32,
@@ -20,21 +31,43 @@ const Interval = struct {
 
 const Node = struct {
     interval: Interval,
-    left: ?*@This(),
-    right: ?*@This(),
-    parent: ?*@This(),
-    max: u32
+    left: ?*@This() = null,
+    right: ?*@This() = null,
+    parent: ?*@This() = null,
 };
 
 
 
-fn insert(root: Node, interval: Interval, parent: Node) Node{
+fn insert(root_pointer: ?*Node, interval: Interval, last_node: ?*Node) IntervalError!?*Node{
+    var root = root_pointer;
+    if (interval.end <= interval.start) {
+        return IntervalError.end_lt_start;
+    }
+
+    try check_overlap(root, interval);
+
     if (root == null) {
-        root = Node{.interval = interval};
+        root = Node{.interval = interval, .parent = last_node};
         return root;
     }
-    //This is to keep the lsp from getting mad at me for now
-    std.debug.print("{} {}\n", .{root, parent});
-    return Node{.interval = interval,};
+
+    if (interval.start < root.interval.start) {
+        return insert(root.left, interval, root);
+    } else {
+        return insert(root.right, interval, root);
+    }
+
 }
 
+fn check_overlap(node_pointer: ?*Node, interval: Interval) IntervalError!?*Node{
+    const node = node_pointer;
+    if (node == null) {
+        return ;
+    } else if (node.interval.start < interval.end and interval.start < node.interval.end) {
+        return IntervalError.overlaps;
+    } else if (node.interval.start < interval.start) {
+        return check_overlap(node, interval);
+    } else {
+        return check_overlap(node, interval);
+    }
+}

@@ -1,28 +1,36 @@
-# import numpy as np
 import datetime as dt
-from timeslot import TimeSlot
-from dataclasses import dataclass
+
+# from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
+
 
 time_0900 = dt.time(hour=9)
 time_1700 = dt.time(hour=17)
-example_time_window = TimeSlot(time_0900, time_1700)
+example_time_window = (time_0900, time_1700)
 minutes_30 = dt.timedelta(minutes=30)
 
 
 @dataclass(slots=True)
-class Task:
-        name: str
-        description: str
-        due_date: dt.datetime
-        duration: dt.timedelta
-        priority: int
-        flexibility: bool
-        difficulty: int
-        work_length: dt.timedelta = minutes_30
-        work_window: TimeSlot = example_time_window
+class StaticTask:
+    """
+    This is for things like doctor appointments where it just happens over a certain time period. StaticTasks are also created when a Task is scheduled
+    so there will be many StaticTask objects per Task.
+        **description** is task-explanatory.
 
+        **start_time** is when the task starts.
+
+        **end_time** is when the task ends
         """
-        **description** is self-explanatory.
+    name: str
+    interval: tuple[dt.datetime, dt.datetime]
+    description: str = ""
+    parent_task: Task | None = None
+
+
+@dataclass(slots=True)
+class Task:
+    """
+        **description** is task-explanatory.
 
         **due_date** is when something is due.
 
@@ -30,7 +38,7 @@ class Task:
 
         **duration** is how long you expect it to take to complete the task
 
-        **priority** is going to be a number 0-5 (could be more or less) with 5 being the highest and 0 the lowest.
+        **priority** is going to be a number 0-10 (could be more or less) with 10 being the highest and 0 the lowest.
             Each number is going to correspond to a phrase which the user will select.
 
         **flexibility** is a bool where a 0 is not flexible and 1 is flexible. Flexible tasks can be moved about and
@@ -41,32 +49,26 @@ class Task:
 
         **work_length** is how long the user wants to work on the task daily, default is 30 minutes
         """
-test = Task(name='test', description='desctiption test', due_date=dt.datetime(year=2026, month=6, day=13, hour=12, minute=15), duration=dt.timedelta(hours=5), priority=5, flexibility=True, difficulty=10)
-print(test)
+    name: str
+    description: str
+    due_date: dt.datetime
+    duration: dt.timedelta
+    priority: int
+    difficulty: int
+    work_length: dt.timedelta = minutes_30
+    work_window: tuple[dt.time, dt.time] = example_time_window
 
 
-def urgency(task:Task):
-    """How soon something is due and how important it is. Maxes out at whatever priority is. Max if there are more days required to complete the task than days till it is due"""
+def ultimate_prio(task: Task) -> float:
+    """ Make doc string """
+    today = dt.datetime.now()
 
-    if not task.flexibility:
-        _urgency = None  # Putting None here for now, but I should probably do something else in the future
-
-    elif task.time_till_due.days == dt.timedelta(days=0).days:
-        _urgency = task.priority
-
+    if task.due_date > today:
+        time_till_due = task.due_date - today
     else:
-        days_to_complete = task.duration / task.work_length
-        _urgency = (
-            min(days_to_complete / task.time_till_due.days, 1) * task.priority
-        )
+        time_till_due = dt.timedelta(days=0)
 
-    return _urgency
-
-
-def ultimate_prio(task):
-    """Make doc string"""
-    if task.urgency is None:
-        _ultimate_prio = None
+    if time_till_due.days == 0:
+        return task.priority * task.difficulty
     else:
-        _ultimate_prio = task.urgency * task.difficulty
-    return _ultimate_prio
+        return min( (task.duration / task.work_length) / time_till_due.days, 1) * task.priority * task.difficulty

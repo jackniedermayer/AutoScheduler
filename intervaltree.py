@@ -55,6 +55,7 @@ def insert(
         raise ValueError(
             f"Start value of {interval} is either the same as or greater than the end value."
         )
+
     if node is None:
         new_node = IntervalNode(interval)
         new_node.parent = previous_node
