@@ -183,20 +183,20 @@ def rotate_zigzag(node: IntervalNode, left_right: bool):
 def choose_rotate(node: IntervalNode):
     parent = node.parent
     if parent is None:
-        return None, "none"
+        return None
 
     grandparent = parent.parent
     if grandparent is None:
-        return None, "none"
+        return None
 
     if grandparent.left == parent and parent.left == node:
-        return rotate_line(parent, go_right=True), "line"
+        return rotate_line(parent, go_right=True)
     elif grandparent.right == parent and parent.right == node:
-        return rotate_line(parent, go_right=False), "line"
+        return rotate_line(parent, go_right=False)
     elif grandparent.left == parent and parent.right == node:
-        return rotate_zigzag(node, left_right=True), "zigzag"
+        return rotate_zigzag(node, left_right=True)
     else:
-        return rotate_zigzag(node, left_right=False), "zigzag"
+        return rotate_zigzag(node, left_right=False)
 
 
 def balance_insert(node: IntervalNode | None):
@@ -223,12 +223,12 @@ def balance_insert(node: IntervalNode | None):
     if parent.color is Color.RED and node.color is Color.RED:
         if uncle is None or uncle.color == Color.BLACK:
             temp = choose_rotate(node)
-            if temp[0] is None:
+            if temp is None:
                 raise ValueError(
                     "Something is really wrong with the color of the nodes"
                 )
 
-            node = temp[0]
+            node = temp
             node.color = Color.BLACK
             if node.left is not None:
                 node.left.color = Color.RED
