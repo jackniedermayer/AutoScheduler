@@ -2,3 +2,8 @@
 __pycache__/
 .venv/
 .idea/
+zig-out/
+zig-pkg/
+.zig-cache/
+.ruff_cache/
+.vscode/

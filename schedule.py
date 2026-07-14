@@ -1,5 +1,6 @@
 import datetime as dt
 from task import Task, StaticTask, ultimate_prio
+
 # from dataclasses import dataclass, field
 import bisect
 from copy import deepcopy
@@ -49,11 +50,13 @@ def schedule_fn(schedule: Schedule):
 
     tasks = sorted(tasks, key=ultimate_prio, reverse=True)
 
-
     day = dt.datetime.now().date()
     days_iterated = 0
 
-    while any(task.duration > dt.timedelta(minutes=0) for task in tasks) and days_iterated < 30:
+    while (
+        any(task.duration > dt.timedelta(minutes=0) for task in tasks)
+        and days_iterated < 30
+    ):
         max_tasks = schedule.max_daily_tasks
         tasks = sorted(tasks, key=ultimate_prio, reverse=True)
 
@@ -183,14 +186,17 @@ task7 = Task(
     difficulty=6,
 )
 lunch = StaticTask(
-        name='lunch',
-        interval=(dt.datetime(year=2026, month=6, day=15, hour=12), dt.datetime(year=2026, month=6, day=15, hour=12, minute=30)),
+    name="lunch",
+    interval=(
+        dt.datetime(year=2026, month=6, day=15, hour=12),
+        dt.datetime(year=2026, month=6, day=15, hour=12, minute=30),
+    ),
 )
-'''tasks = [task1, task2, task3, task4, task5, task6, task7, lunch]
+"""tasks = [task1, task2, task3, task4, task5, task6, task7, lunch]
 schedule = None
 for task in tasks:
     schedule = insert(task, schedule)
 
 for t in schedule.schedule:
     print(t.interval[0].date(), t.interval[0].time(), t.interval[1].time(), t.name)
-'''
+"""
