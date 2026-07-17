@@ -83,7 +83,7 @@ pub fn main(init: std.process.Init) !void{
             std.debug.print("Root is red\n", .{});
         }
     }
-    //try tree.printTree(allocator);
+    try tree.printTree(allocator);
 }
 
 
@@ -120,19 +120,19 @@ pub const DeleteError = error{
 
 
 pub const TreeError = error{
-root_not_black,
-black_count_off,
-double_reds,
+    root_not_black,
+    black_count_off,
+    double_reds,
 };
 
 
-pub const Color = enum {
+pub const Color = enum{
     Black,
     Red,
 };
 
 
-pub const Compare = enum {
+pub const Compare = enum{
     Less,
     Greater,
     Equal,
@@ -157,7 +157,7 @@ pub fn Tree(
 
         if (compareInnerVals(val) == Compare.Greater) return IntervalError.end_lt_start;
 
-        return struct {
+        return struct{
             root: *Node,
             arena: *std.heap.ArenaAllocator,
             allocator: Allocator,
@@ -172,7 +172,7 @@ pub fn Tree(
             const Self = @This();
 
 
-            pub const Node = struct {
+            pub const Node = struct{
                 data: Outer,
                 color: Color = Color.Red,
                 left: *Node = undefined,
@@ -241,7 +241,7 @@ pub fn Tree(
 
             /// When called looks at provided node and starts balancing up the tree.
             /// Should be run after _insert
-fn balance(self: *Self, node: *Node) void{
+            fn balance(self: *Self, node: *Node) void{
                 if (node == &sentinel) return;
 
                 const parent = node.parent;
@@ -771,12 +771,12 @@ fn balance(self: *Self, node: *Node) void{
 
 // I am going to keep this commented out cause it took a decent amount of work and I think I may need something like this elsewhere.
 // This all came from the printTree function before I switched to bfs.
-//                const Direction = enum {
+//                const Direction = enum{
 //                    left,
 //                    right,
 //                };
 //
-//                const StackData = struct {
+//                const StackData = struct{
 //                    node: *Node,
 //                    direction: Direction,
 //                };
